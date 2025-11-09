@@ -133,7 +133,8 @@ func (r *rest) Register() {
 	public.GET("reports/:id", r.GetReport)
 
 	// private api
-	r.http.Group("/v1/", commonPrivateMiddlewares...)
+	private := r.http.Group("/v1/", commonPrivateMiddlewares...)
+	private.PUT("reports/:id", r.UpdateReport)
 }
 
 func (r *rest) Run() {

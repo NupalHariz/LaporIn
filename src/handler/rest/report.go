@@ -50,3 +50,26 @@ func (r *rest) GetReport(ctx *gin.Context) {
 
 	r.httpRespSuccess(ctx, codes.CodeAccepted, res, nil)
 }
+
+func (r *rest) UpdateReport(ctx *gin.Context) {
+	var param dto.UpdateParam
+
+	if err := r.Bind(ctx, &param); err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	if err := r.BindUri(ctx, &param); err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	err := r.uc.Report.UpdateReport(ctx, param)
+	if err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	r.httpRespSuccess(ctx, codes.CodeAccepted, nil, nil)
+
+}

@@ -12,6 +12,8 @@ import (
 	"github.com/nupalHariz/LaporIn/src/business/dto"
 	"github.com/nupalHariz/LaporIn/src/business/entity"
 	"github.com/nupalHariz/LaporIn/src/business/service/supabase"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/reyhanmichiels/go-pkg/v2/null"
 )
 
@@ -19,6 +21,7 @@ type Interface interface {
 	InputReport(ctx context.Context, inputParam dto.InputReport) (dto.InputReportResponse, error)
 	GetAllReports(ctx context.Context) ([]dto.AllReports, error)
 	GetReport(ctx context.Context, param dto.ReportParam) (dto.GetReport, error)
+	UpdateReport(ctx context.Context, param dto.UpdateParam) error
 }
 
 type report struct {
@@ -38,10 +41,12 @@ func Init(param InitParam) Interface {
 	}
 }
 
+var wib = time.FixedZone("WIB", 7*3600)
+
 func (r *report) InputReport(ctx context.Context, param dto.InputReport) (dto.InputReportResponse, error) {
 	res := dto.InputReportResponse{}
 
-	ticketCode, err := r.GenerateTicketCode(time.Now(), time.FixedZone("WIB", 7*3600))
+	ticketCode, err := r.GenerateTicketCode(time.Now(), wib)
 	if err != nil {
 		return res, err
 	}
@@ -49,7 +54,14 @@ func (r *report) InputReport(ctx context.Context, param dto.InputReport) (dto.In
 	var photoUrl string
 
 	if param.PhotoFile.Size != 0 {
-		fmt.Println("MASUK SINI")
+		now := time.Now().In(wib)
+
+		key := fmt.Sprintf("%s/%d-%s", now.Format("02-01-2006"), now.UnixNano(), param.PhotoFile.Filename)
+
+		key = strings.ReplaceAll(key, " ", "-")
+
+		param.PhotoFile.Filename = key
+
 		photoUrl, err = r.supabase.Upload(&param.PhotoFile)
 		if err != nil {
 			return res, err
@@ -148,4 +160,50 @@ func (r *report) GetReport(ctx context.Context, param dto.ReportParam) (dto.GetR
 	reportRes.UpdatedAt = report.UpdatedAt
 
 	return reportRes, err
+}
+
+func (r *report) UpdateReport(ctx context.Context, param dto.UpdateParam) error {
+	var proofPhotoUrl string
+	var err error
+
+	status := entity.Status(param.Status)
+
+	switch status {
+	case entity.INREVIEW:
+		if strings.TrimSpace(param.StatusDesc) != "" || param.StatusProofFile.Size != 0 {
+			return errors.NewWithCode(codes.CodeBadRequest, "in review didnt need any other properties")
+		}
+	case entity.REJECTED, entity.RESOLVED:
+		if strings.TrimSpace(param.StatusDesc) == "" {
+			return errors.NewWithCode(codes.CodeBadRequest, "status desc can't be empty")
+		}
+	}
+
+	if param.StatusProofFile.Size != 0 && status != entity.INREVIEW {
+		now := time.Now().In(wib)
+
+		key := fmt.Sprintf("%s/%s/%d-%s", now.Format("02-01-2006"), status, now.UnixNano(), param.StatusProofFile.Filename,)
+
+		key = strings.ReplaceAll(key, " ", "-")
+
+		param.StatusProofFile.Filename = key
+
+		proofPhotoUrl, err = r.supabase.Upload(&param.StatusProofFile)
+		if err != nil {
+			return err
+		}
+	}
+
+	updateParam := entity.UpdateReportParam{
+		Status:         entity.Status(param.Status),
+		StatusDesc:     null.StringFrom(param.StatusDesc),
+		StatusProofUrl: null.StringFrom(proofPhotoUrl),
+	}
+
+	err = r.report.Update(ctx, updateParam, entity.ReportParam{Id: param.Id})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

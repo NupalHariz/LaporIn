@@ -8,10 +8,10 @@ import (
 )
 
 type InputReport struct {
-	Title       string               `form:"title"`
-	Description string               `form:"description"`
-	Category    string               `form:"category"`
-	Location    string               `form:"location"`
+	Title       string               `form:"title" binding:"required"`
+	Description string               `form:"description" binding:"required"`
+	Category    string               `form:"category" binding:"required"`
+	Location    string               `form:"location" binding:"required"`
 	PhotoFile   multipart.FileHeader `form:"photo_file"`
 }
 
@@ -46,4 +46,11 @@ type GetReport struct {
 	StatusProofUrl string    `json:"status_proof_url"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+type UpdateParam struct {
+	Id              int                  `uri:"id"`
+	Status          string               `form:"status" binding:"required"`
+	StatusDesc      string               `form:"status_desc"`
+	StatusProofFile multipart.FileHeader `form:"status_proof_file"`
 }

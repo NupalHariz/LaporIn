@@ -96,3 +96,36 @@ func (r *report) getSQL(ctx context.Context, param entity.ReportParam) (entity.R
 
 	return report, err
 }
+
+func (r *report) updateSQL(ctx context.Context, updateBody entity.UpdateReportParam, param entity.ReportParam) error {
+	qb := query.NewSQLQueryBuilder(r.db, "param", "db", &param.Option)
+
+	queryUpdate, args, err := qb.BuildUpdate(&updateBody, &param)
+	if err != nil {
+		return errors.NewWithCode(codes.CodeSQLBuilder, err.Error())
+	}
+
+	tx, err := r.db.Leader().BeginTx(ctx, "txReport", sql.TxOptions{})
+	if err != nil {
+		return errors.NewWithCode(codes.CodeSQLTxBegin, err.Error())
+	}
+	defer tx.Rollback()
+
+	res, err := tx.Exec("uReport", updateReport+queryUpdate, args...)
+	if err != nil {
+		return errors.NewWithCode(codes.CodeSQLTxExec, err.Error())
+	}
+
+	rowCount, err := res.RowsAffected()
+	if err != nil {
+		return errors.NewWithCode(codes.CodeSQLNoRowsAffected, err.Error())
+	} else if rowCount < 1 {
+		return errors.NewWithCode(codes.CodeSQLNoRowsAffected, "no report updated")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return errors.NewWithCode(codes.CodeSQLTxCommit, err.Error())
+	}
+
+	return err
+}

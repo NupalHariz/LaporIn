@@ -50,3 +50,9 @@ type ReportParam struct {
 	Option query.Option
 	PaginationParam
 }
+
+type UpdateReportParam struct {
+	Status         Status      `db:"status"`
+	StatusDesc     null.String `db:"status_desc"`
+	StatusProofUrl null.String `db:"status_proof_url"`
+}

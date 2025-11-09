@@ -38,4 +38,9 @@ const (
 	FROM
 		reports
 	`
+
+	updateReport=`
+	UPDATE
+		reports
+	`
 )
