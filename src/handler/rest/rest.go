@@ -127,7 +127,8 @@ func (r *rest) Register() {
 	authV1.POST("/token/refresh", r.RefreshToken)
 
 	// public api
-	r.http.Group("/public/v1/", commonPublicMiddlewares...)
+	public := r.http.Group("/public/v1/", commonPublicMiddlewares...)
+	public.POST("reports", r.InputReport)
 
 	// private api
 	r.http.Group("/v1/", commonPrivateMiddlewares...)

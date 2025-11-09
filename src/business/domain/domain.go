@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/nupalHariz/LaporIn/src/business/domain/report"
 	"github.com/nupalHariz/LaporIn/src/business/domain/user"
 	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/reyhanmichiels/go-pkg/v2/parser"
@@ -9,7 +10,8 @@ import (
 )
 
 type Domains struct {
-	User user.Interface
+	User   user.Interface
+	Report report.Interface
 }
 
 type InitParam struct {
@@ -22,6 +24,7 @@ type InitParam struct {
 
 func Init(param InitParam) *Domains {
 	return &Domains{
-		User: user.Init(user.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
+		User:   user.Init(user.InitParam{Db: param.Db, Log: param.Log, Redis: param.Redis, Json: param.Json}),
+		Report: report.Init(report.InitParam{Db: param.Db, Log: param.Log}),
 	}
 }
