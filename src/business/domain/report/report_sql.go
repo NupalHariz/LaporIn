@@ -7,6 +7,7 @@ import (
 	"github.com/nupalHariz/LaporIn/src/business/entity"
 	"github.com/reyhanmichiels/go-pkg/v2/codes"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/query"
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
 )
 
@@ -64,4 +65,34 @@ func (r *report) getAllSQL(ctx context.Context) ([]entity.Report, error) {
 	}
 
 	return reports, nil
+}
+
+func (r *report) getSQL(ctx context.Context, param entity.ReportParam) (entity.Report, error) {
+	var report entity.Report
+
+	qb := query.NewSQLQueryBuilder(r.db, "param", "db", &param.Option)
+
+	queryExt, queryArgs, _, _, err := qb.Build(&param)
+	if err != nil {
+		return report, errors.NewWithCode(codes.CodeSQLBuilder, err.Error())
+	}
+
+	rows, err := r.db.QueryRow(ctx, "rReport", getReport+queryExt, queryArgs...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNotFound) {
+			return report, errors.NewWithCode(codes.CodeSQLRecordDoesNotExist, err.Error())
+		}
+
+		return report, errors.NewWithCode(codes.CodeSQL, err.Error())
+	}
+
+	if err := rows.StructScan(&report); err != nil {
+		if errors.Is(err, sql.ErrNotFound) {
+			return report, errors.NewWithCode(codes.CodeSQLRecordDoesNotExist, err.Error())
+		}
+
+		return report, errors.NewWithCode(codes.CodeSQLRowScan, err.Error())
+	}
+
+	return report, err
 }

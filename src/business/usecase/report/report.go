@@ -18,6 +18,7 @@ import (
 type Interface interface {
 	InputReport(ctx context.Context, inputParam dto.InputReport) (dto.InputReportResponse, error)
 	GetAllReports(ctx context.Context) ([]dto.AllReports, error)
+	GetReport(ctx context.Context, param dto.ReportParam) (dto.GetReport, error)
 }
 
 type report struct {
@@ -123,4 +124,28 @@ func (r *report) GetAllReports(ctx context.Context) ([]dto.AllReports, error) {
 	}
 
 	return reportsDto, err
+}
+
+func (r *report) GetReport(ctx context.Context, param dto.ReportParam) (dto.GetReport, error) {
+	var reportRes dto.GetReport
+
+	report, err := r.report.Get(ctx, entity.ReportParam{Id: param.Id})
+	if err != nil {
+		return reportRes, err
+	}
+
+	reportRes.Id = report.Id
+	reportRes.Category = string(report.Category)
+	reportRes.Title = report.Title
+	reportRes.Description = report.Description
+	reportRes.TicketCode = report.TicketCode
+	reportRes.Location = report.Location
+	reportRes.PhotoUrl = report.PhotoUrl.String
+	reportRes.Status = string(report.Status)
+	reportRes.StatusDesc = report.StatusDesc.String
+	reportRes.StatusProofUrl = report.StatusProofUrl.String
+	reportRes.CreatedAt = report.CreatedAt
+	reportRes.UpdatedAt = report.UpdatedAt
+
+	return reportRes, err
 }

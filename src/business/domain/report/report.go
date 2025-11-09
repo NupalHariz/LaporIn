@@ -11,6 +11,7 @@ import (
 type Interface interface {
 	Create(ctx context.Context, inputParam entity.ReportInputParam) error
 	GetAll(ctx context.Context) ([]entity.Report, error)
+	Get(ctx context.Context, param entity.ReportParam) (entity.Report, error)
 }
 
 type report struct {
@@ -38,6 +39,12 @@ func (r *report) Create(ctx context.Context, inputParam entity.ReportInputParam)
 
 func (r *report) GetAll(ctx context.Context) ([]entity.Report, error) {
 	reports, err := r.getAllSQL(ctx)
-	
+
 	return reports, err
+}
+
+func (r *report) Get(ctx context.Context, param entity.ReportParam) (entity.Report, error) {
+	report, err := r.getSQL(ctx, param)
+
+	return report, err
 }

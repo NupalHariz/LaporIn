@@ -31,5 +31,22 @@ func (r *rest) GetAllReports(ctx *gin.Context) {
 		return
 	}
 
-	r.httpRespSuccess(ctx, codes.CodeCreated, res, nil)
+	r.httpRespSuccess(ctx, codes.CodeAccepted, res, nil)
+}
+
+func (r *rest) GetReport(ctx *gin.Context) {
+	var param dto.ReportParam
+
+	if err := r.BindUri(ctx, &param); err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	res, err := r.uc.Report.GetReport(ctx.Request.Context(), param)
+	if err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	r.httpRespSuccess(ctx, codes.CodeAccepted, res, nil)
 }

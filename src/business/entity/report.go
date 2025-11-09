@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/reyhanmichiels/go-pkg/v2/null"
+	"github.com/reyhanmichiels/go-pkg/v2/query"
 )
 
 type Status string
@@ -42,4 +43,10 @@ type ReportInputParam struct {
 	Location    string      `db:"location"`
 	PhotoUrl    null.String `db:"photo_url"`
 	TicketCode  string      `db:"ticket_code"`
+}
+
+type ReportParam struct {
+	Id     int `db:"id" param:"id"`
+	Option query.Option
+	PaginationParam
 }
