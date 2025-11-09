@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/reyhanmichiels/go-pkg/appcontext"
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
-	"github.com/reyhanmichiels/go-pkg/header"
-	"github.com/reyhanmichies/go-rest-api-boiler-plate/src/business/entity"
+	"github.com/nupalHariz/LaporIn/src/business/entity"
+	"github.com/reyhanmichiels/go-pkg/v2/appcontext"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/header"
 )
 
 func (r *rest) httpRespSuccess(ctx *gin.Context, code codes.Code, data interface{}, p *entity.Pagination) {
