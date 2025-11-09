@@ -2,6 +2,7 @@ package dto
 
 import (
 	"mime/multipart"
+	"time"
 )
 
 type InputReport struct {
@@ -14,4 +15,13 @@ type InputReport struct {
 
 type InputReportResponse struct {
 	TicketCode string `json:"ticket_code"`
+}
+
+type AllReports struct {
+	Id         int       `json:"id"`
+	TicketCode string    `json:"ticket_code"`
+	Title      string    `json:"title"`
+	Category   string    `json:"category"`
+	Location   string    `json:"location"`
+	CreatedAt  time.Time `json:"created_at"`
 }

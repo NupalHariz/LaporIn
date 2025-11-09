@@ -17,6 +17,7 @@ import (
 
 type Interface interface {
 	InputReport(ctx context.Context, inputParam dto.InputReport) (dto.InputReportResponse, error)
+	GetAllReports(ctx context.Context) ([]dto.AllReports, error)
 }
 
 type report struct {
@@ -100,4 +101,26 @@ func (r *report) GenerateTicketCode(t time.Time, loc *time.Location) (string, er
 		return "", err
 	}
 	return fmt.Sprintf("%s-%s", date, rs), nil
+}
+
+func (r *report) GetAllReports(ctx context.Context) ([]dto.AllReports, error) {
+	var reportsDto []dto.AllReports
+
+	reports, err := r.report.GetAll(ctx)
+	if err != nil {
+		return reportsDto, err
+	}
+
+	for _, r := range reports {
+		reportsDto = append(reportsDto, dto.AllReports{
+			Id:         r.Id,
+			TicketCode: r.TicketCode,
+			Title:      r.Title,
+			Category:   string(r.Category),
+			Location:   r.Location,
+			CreatedAt:  r.CreatedAt,
+		})
+	}
+
+	return reportsDto, err
 }

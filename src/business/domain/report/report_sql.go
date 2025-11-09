@@ -10,7 +10,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/v2/sql"
 )
 
-func (r *report) createSQL(ctx context.Context, inputParam entity.ReportInputParam) (error) {
+func (r *report) createSQL(ctx context.Context, inputParam entity.ReportInputParam) error {
 	tx, err := r.db.Leader().BeginTx(ctx, "txReport", sql.TxOptions{})
 	if err != nil {
 		return errors.NewWithCode(codes.CodeSQLTxBegin, err.Error())
@@ -38,4 +38,30 @@ func (r *report) createSQL(ctx context.Context, inputParam entity.ReportInputPar
 	}
 
 	return err
+}
+
+func (r *report) getAllSQL(ctx context.Context) ([]entity.Report, error) {
+	var reports []entity.Report
+
+	var x []interface{}
+
+	rows, err := r.db.Query(ctx, "rReportAll", getReport, x...)
+	if err != nil {
+		return reports, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		report := entity.Report{}
+
+		err := rows.StructScan(&report)
+		if err != nil {
+			r.log.Error(ctx, codes.CodeSQLRowScan)
+			continue
+		}
+
+		reports = append(reports, report)
+	}
+
+	return reports, nil
 }

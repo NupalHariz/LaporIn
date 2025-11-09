@@ -129,6 +129,7 @@ func (r *rest) Register() {
 	// public api
 	public := r.http.Group("/public/v1/", commonPublicMiddlewares...)
 	public.POST("reports", r.InputReport)
+	public.GET("reports", r.GetAllReports)
 
 	// private api
 	r.http.Group("/v1/", commonPrivateMiddlewares...)
