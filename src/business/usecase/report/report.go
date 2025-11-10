@@ -132,6 +132,7 @@ func (r *report) GetAllReports(ctx context.Context) ([]dto.AllReports, error) {
 			Category:   string(r.Category),
 			Location:   r.Location,
 			CreatedAt:  r.CreatedAt,
+			Status:     string(r.Status),
 		})
 	}
 
@@ -182,7 +183,7 @@ func (r *report) UpdateReport(ctx context.Context, param dto.UpdateParam) error 
 	if param.StatusProofFile.Size != 0 && status != entity.INREVIEW {
 		now := time.Now().In(wib)
 
-		key := fmt.Sprintf("%s/%s/%d-%s", now.Format("02-01-2006"), status, now.UnixNano(), param.StatusProofFile.Filename,)
+		key := fmt.Sprintf("%s/%s/%d-%s", now.Format("02-01-2006"), status, now.UnixNano(), param.StatusProofFile.Filename)
 
 		key = strings.ReplaceAll(key, " ", "-")
 

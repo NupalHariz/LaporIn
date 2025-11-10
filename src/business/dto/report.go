@@ -25,6 +25,7 @@ type AllReports struct {
 	Title      string    `json:"title"`
 	Category   string    `json:"category"`
 	Location   string    `json:"location"`
+	Status     string    `json:"status"`
 	CreatedAt  time.Time `json:"created_at"`
 }
 
