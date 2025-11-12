@@ -10,7 +10,7 @@ import (
 
 type Interface interface {
 	Create(ctx context.Context, inputParam entity.ReportInputParam) error
-	GetAll(ctx context.Context) ([]entity.Report, error)
+	GetAll(ctx context.Context, param entity.ReportParam) ([]entity.Report, error)
 	Get(ctx context.Context, param entity.ReportParam) (entity.Report, error)
 	Update(ctx context.Context, updateBody entity.UpdateReportParam, param entity.ReportParam) error
 }
@@ -38,8 +38,8 @@ func (r *report) Create(ctx context.Context, inputParam entity.ReportInputParam)
 	return err
 }
 
-func (r *report) GetAll(ctx context.Context) ([]entity.Report, error) {
-	reports, err := r.getAllSQL(ctx)
+func (r *report) GetAll(ctx context.Context, param entity.ReportParam) ([]entity.Report, error) {
+	reports, err := r.getAllSQL(ctx, param)
 
 	return reports, err
 }

@@ -41,12 +41,17 @@ func (r *report) createSQL(ctx context.Context, inputParam entity.ReportInputPar
 	return err
 }
 
-func (r *report) getAllSQL(ctx context.Context) ([]entity.Report, error) {
+func (r *report) getAllSQL(ctx context.Context, param entity.ReportParam) ([]entity.Report, error) {
 	var reports []entity.Report
 
-	var x []interface{}
+	qb := query.NewSQLQueryBuilder(r.db, "param", "db", &param.Option)
 
-	rows, err := r.db.Query(ctx, "rReportAll", getReport, x...)
+	queryExt, queryArgs, countExt, countArgs, err := qb.Build(&param)
+	if err != nil {
+		return reports, errors.NewWithCode(codes.CodeSQLBuilder, err.Error())
+	}
+
+	rows, err := r.db.Query(ctx, "rReportAll", getReport+queryExt, queryArgs...)
 	if err != nil {
 		return reports, err
 	}
@@ -63,6 +68,20 @@ func (r *report) getAllSQL(ctx context.Context) ([]entity.Report, error) {
 
 		reports = append(reports, report)
 	}
+
+	pg := entity.Pagination{
+		CurrentPage:     param.PaginationParam.Page,
+		CurrentElements: int64(len(reports)),
+	}
+
+	if !param.Option.DisableLimit && len(reports) > 0 {
+		err := r.db.Get(ctx, "pMoney", countReport+countExt, &pg.TotalElements, countArgs...)
+		if err != nil {
+			return reports, errors.NewWithCode(codes.CodeSQLRead, err.Error())
+		}
+	}
+
+	pg.ProcessPagination(param.Limit)
 
 	return reports, nil
 }

@@ -19,7 +19,7 @@ import (
 
 type Interface interface {
 	InputReport(ctx context.Context, inputParam dto.InputReport) (dto.InputReportResponse, error)
-	GetAllReports(ctx context.Context) ([]dto.AllReports, error)
+	GetAllReports(ctx context.Context, param dto.ReportParam) ([]dto.AllReports, error)
 	GetReport(ctx context.Context, param dto.ReportParam) (dto.GetReport, error)
 	UpdateReport(ctx context.Context, param dto.UpdateParam) error
 }
@@ -116,10 +116,24 @@ func (r *report) GenerateTicketCode(t time.Time, loc *time.Location) (string, er
 	return fmt.Sprintf("%s-%s", date, rs), nil
 }
 
-func (r *report) GetAllReports(ctx context.Context) ([]dto.AllReports, error) {
+func (r *report) GetAllReports(ctx context.Context, param dto.ReportParam) ([]dto.AllReports, error) {
 	var reportsDto []dto.AllReports
 
-	reports, err := r.report.GetAll(ctx)
+	var from, to time.Time
+
+	if !param.CreatedAt.IsZero() {
+		from = time.Date(param.CreatedAt.Year(), param.CreatedAt.Month(), param.CreatedAt.Day(), 0, 0, 0, 0, wib)
+		to = from.Add(24 * time.Hour)
+	}
+
+	reports, err := r.report.GetAll(ctx, entity.ReportParam{
+		Title:           param.Title,
+		Category:        param.Category,
+		Status:          param.Status,
+		CreatedAtHigher: from,
+		CreatedAtLower:  to,
+		PaginationParam: param.PaginationParam,
+	})
 	if err != nil {
 		return reportsDto, err
 	}

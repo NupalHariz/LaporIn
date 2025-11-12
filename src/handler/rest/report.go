@@ -25,7 +25,14 @@ func (r *rest) InputReport(ctx *gin.Context) {
 }
 
 func (r *rest) GetAllReports(ctx *gin.Context) {
-	res, err := r.uc.Report.GetAllReports(ctx.Request.Context())
+	var param dto.ReportParam
+
+	if err := r.BindQuery(ctx, &param); err != nil {
+		r.httpRespError(ctx, err)
+		return
+	}
+
+	res, err := r.uc.Report.GetAllReports(ctx.Request.Context(), param)
 	if err != nil {
 		r.httpRespError(ctx, err)
 		return

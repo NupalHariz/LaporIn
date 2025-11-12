@@ -30,7 +30,11 @@ type AllReports struct {
 }
 
 type ReportParam struct {
-	Id int `uri:"id"`
+	Id        int             `uri:"id"`
+	Status    entity.Status   `form:"status"`
+	Title     string          `form:"title"`
+	Category  entity.Category `form:"category"`
+	CreatedAt time.Time       `form:"created_at" time_format:"2006-01-02"`
 	entity.PaginationParam
 }
 

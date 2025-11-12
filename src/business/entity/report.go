@@ -46,8 +46,13 @@ type ReportInputParam struct {
 }
 
 type ReportParam struct {
-	Id     int `db:"id" param:"id"`
-	Option query.Option
+	Id              int       `db:"id" param:"id"`
+	Title           string    `db:"title" param:"LIKE"`
+	Category        Category  `db:"category" param:"category"`
+	Status          Status    `db:"status" param:"status"`
+	CreatedAtHigher time.Time `db:"created_at" param:"created_at__gte"`
+	CreatedAtLower  time.Time `db:"created_at" param:"created_at__lte"`
+	Option          query.Option
 	PaginationParam
 }
 

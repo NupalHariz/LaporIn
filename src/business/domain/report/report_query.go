@@ -43,4 +43,11 @@ const (
 	UPDATE
 		reports
 	`
+
+	countReport=`
+		SELECT
+			COUNT(*)
+		FROM
+			reports
+	`
 )
